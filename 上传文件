@@ -1,0 +1,76 @@
+上传文件
+已上传的文件存储在内存或是文件系统中一个临时的位置。你可以通过请求对象的 files 属性访问它们。每个上传的文件都会存储在这个字典里。它表现近乎为一个标准的 Python file 对象，但它还有一个 save() 方法，这个方法允许你把文件保存到服务器的文件系统上。这里是一个用它保存文件的例子:
+
+如果你想知道上传前文件在客户端的文件名是什么，你可以访问 filename 属性。但请记住， 永远不要信任这个值，这个值是可以伪造的。如果你要把文件按客户端提供的文件名存储在服务器上，那么请把它传递给 Werkzeug 提供的 secure_filename() 函数:
+from flask import request
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['the_file']
+        f.save('/var/www/uploads/uploaded_file.txt')
+        
+  from flask import request
+from werkzeug import secure_filename
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['the_file']
+        f.save('/var/www/uploads/' + secure_filename(f.filename))
+        
+  返回的响应数据 
+  元组
+可以返回一个元组，这样的元组必须是 (response, status, headers) 的形式，且至少包含一个元素。 status 值会覆盖状态代码， headers 可以是一个列表或字典，作为额外的消息标头值。[(key, value),()]   {“key”:”value”,…}
+
+make_response
+resp = make_response(“”)
+resp.headers[“sample”] = “value”
+resp.status = “404 not found”
+
+4.6 使用jsonify返回json数据
+json.dumps()  json.loads()
+jsonify(key=value, k1=v1)
+4.5 重定向
+from flask import redirect
+
+4.6 设置和读取cookie
+resp = make_response()
+
+resp.set_cookie(key, value=’’, max_age=None)
+
+resp.delete_cookie(key)
+
+request.cookies.get()
+4.7 session
+from flask import session
+
+需要设置secret_key
+
+session[key] = val
+value = session.get(key)
+flask.json.jsonify(*args, **kwargs)
+This function wraps dumps() to add a few enhancements that make life easier. It turns the JSON output into a Response object with the application/json mimetype. For convenience, it also converts multiple arguments into an array or multiple keyword arguments into a dict. This means that both jsonify(1,2,3) and jsonify([1,2,3]) serialize to [1,2,3].
+
+For clarity, the JSON serialization behavior has the following differences from dumps():
+
+Single argument: Passed straight through to dumps().
+Multiple arguments: Converted to an array before being passed to dumps().
+Multiple keyword arguments: Converted to a dict before being passed to dumps().
+Both args and kwargs: Behavior undefined and will throw an exception.
+Example usage:
+
+from flask import jsonify
+
+@app.route('/_get_current_user')
+def get_current_user():
+    return jsonify(username=g.user.username,
+                   email=g.user.email,
+                   id=g.user.id)
+This will send a JSON response like this to the browser:
+
+{
+    "username": "admin",
+    "email": "admin@localhost",
+    "id": 42
+}
